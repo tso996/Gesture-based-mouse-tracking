@@ -6,7 +6,7 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
 
-fps = 1
+fps = 60
 cap = cv2.VideoCapture(0)
 with mp_hands.Hands(
     model_complexity=0,
@@ -23,10 +23,9 @@ with mp_hands.Hands(
     # To improve performance, optionally mark the image as not writeable to
     # pass by reference.
     image.flags.writeable = False
+    # image = cv2.resize(image,(0, 0), fx=0.5, fy=0.5)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     imageHeight, imageWidth, _ = image.shape
-    print(imageHeight)
-    print(imageWidth)
     results = hands.process(image)
 
     # Draw the hand annotations on the image.
@@ -36,8 +35,9 @@ with mp_hands.Hands(
       for hand_landmarks in results.multi_hand_landmarks:
         normalizedLandmark = hand_landmarks.landmark[8]# Tip of the pointer value
         pixelCoordinatesLandmark = mp_drawing._normalized_to_pixel_coordinates(normalizedLandmark.x, normalizedLandmark.y, imageWidth, imageHeight)
-        print("pixel coordinates: ")
-        print(pixelCoordinatesLandmark)
+        print("pixel coordinate: ",pixelCoordinatesLandmark,end="\r")
+        # print(pixelCoordinatesLandmark)
+        
 
         mp_drawing.draw_landmarks(
             image,
@@ -46,7 +46,7 @@ with mp_hands.Hands(
             mp_drawing_styles.get_default_hand_landmarks_style(),
             mp_drawing_styles.get_default_hand_connections_style())
     # Flip the image horizontally for a selfie-view display.
-    cv2.imshow('MediaPipe Hands', cv2.flip(cv2.resize(image,(0, 0), fx=0.5, fy=0.5), 1))
+    cv2.imshow('MediaPipe Hands', cv2.flip(cv2.resize(image,(0, 0), fx=1, fy=1), 1))
 
     if cv2.waitKey(5) & 0xFF == 27:
       break
