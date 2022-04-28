@@ -29,3 +29,5 @@ Type the following commands in the terminal after navigating to the autopy direc
 
 ```make install```
 
+Make sure to provide permission to the terminal to access the mouse in privacy and security settings.
+

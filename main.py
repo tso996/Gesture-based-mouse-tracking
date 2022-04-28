@@ -9,7 +9,7 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 wScreen, hScreen = autopy.screen.size()
 print(wScreen, hScreen)
-
+frameR = 80
 pTime = 10
 sleepLimit = 60
 cap = cv2.VideoCapture(0)
@@ -36,6 +36,8 @@ with mp_hands.Hands(
     imageHeight, imageWidth, _ = image.shape
     
     results = hands.process(image)
+    # To limit the boundaries in order to improve the mouse pointer consistency
+    cv2.rectangle(image, (frameR,frameR),(1280-frameR,720-frameR),(255,255,0),2)
     if results.multi_hand_landmarks:
         hand_landmarks = results.multi_hand_landmarks[0]
         if hand_landmarks.landmark[8] is None:
@@ -48,19 +50,24 @@ with mp_hands.Hands(
         pixelCoordinatesLandmark2 = mp_drawing._normalized_to_pixel_coordinates(normalizedLandmark2.x, normalizedLandmark2.y, imageWidth, imageHeight)
         
         
+        
         # # debug the pointer tip coordinates
         # print("pixel coordinate tip: ",pixelCoordinatesLandmark,"pixel coordinate second: ", pixelCoordinatesLandmark2,end="\r")
         
         # converting the tip coordinates to mouse position
         try:
-            mouseX = np.interp(pixelCoordinatesLandmark[0], (0,1280),(0,wScreen))
-            mouseY = np.interp(pixelCoordinatesLandmark[1],(0,720),(0,hScreen))
+            mouseX = np.interp(pixelCoordinatesLandmark[0], (frameR,1280-frameR),(0,wScreen))
+            mouseY = np.interp(pixelCoordinatesLandmark[1],(frameR,720-frameR),(0,hScreen))
             # print(mouseX,mouseY,end="\r")
             # moving the mouse
-            autopy.mouse.move(mouseX,mouseY)
+            autopy.mouse.move(wScreen - mouseX, mouseY)
+            
+            # cv2.circle(image,(pixelCoordinatesLandmark[0],pixelCoordinatesLandmark[1]),15,(255,0,255),cv2.FILLED)
             # print(pixelCoordinatesLandmark)
         except TypeError:
-            print("some problem")
+            print("point is out of the screen")
+        except ValueError:
+            print("point is out of bounds")
 
         mp_drawing.draw_landmarks(
             image,
