@@ -1,17 +1,23 @@
-from tkinter import E
 import cv2
 import mediapipe as mp
 import time
 import autopy
 import numpy as np
+
+# todo
+# close the terminal/exit() when a fist is made
+# clicking based on the point gesture
+
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 wScreen, hScreen = autopy.screen.size()
 print(wScreen, hScreen)
-frameR = 80
+frameR = 200
 pTime = 10
 sleepLimit = 60
+
+
 cap = cv2.VideoCapture(0)
 with mp_hands.Hands(
     model_complexity=0,
@@ -61,13 +67,13 @@ with mp_hands.Hands(
             # print(mouseX,mouseY,end="\r")
             # moving the mouse
             autopy.mouse.move(wScreen - mouseX, mouseY)
-            
+            print("mouse tracking is working correctly         ",end="\r")
             # cv2.circle(image,(pixelCoordinatesLandmark[0],pixelCoordinatesLandmark[1]),15,(255,0,255),cv2.FILLED)
             # print(pixelCoordinatesLandmark)
         except TypeError:
-            print("point is out of the screen")
+            print("point is out of the screen             ",end="\r")
         except ValueError:
-            print("point is out of bounds")
+            print("point is out of bounds                  ",end="\r")
 
         mp_drawing.draw_landmarks(
             image,
@@ -75,30 +81,15 @@ with mp_hands.Hands(
             mp_hands.HAND_CONNECTIONS,
             mp_drawing_styles.get_default_hand_landmarks_style(),
             mp_drawing_styles.get_default_hand_connections_style())
-    # print("======")
-    # continue
-    # Draw the hand annotations on the image.
+ 
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    # if results.multi_hand_landmarks:
-    #   for hand_landmarks in results.multi_hand_landmarks:
-    #     normalizedLandmark = hand_landmarks.landmark[8]# Tip of the pointer value
-    #     pixelCoordinatesLandmark = mp_drawing._normalized_to_pixel_coordinates(normalizedLandmark.x, normalizedLandmark.y, imageWidth, imageHeight)
-    #     print("pixel coordinate: ",pixelCoordinatesLandmark,end="\r")
-    #     # print(pixelCoordinatesLandmark)
-        
-
-    #     mp_drawing.draw_landmarks(
-    #         image,
-    #         hand_landmarks,
-    #         mp_hands.HAND_CONNECTIONS,
-    #         mp_drawing_styles.get_default_hand_landmarks_style(),
-    #         mp_drawing_styles.get_default_hand_connections_style())
+    
     # Flip the image horizontally for a selfie-view display.
     image = cv2.resize(image,(0, 0),fx=0.5, fy=0.5)
     image = cv2.flip(image, 1)
     cv2.putText(image, str(int(fps)), (20, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255,255,0), 3)
-    cv2.imshow('MediaPipe Hands', image)
+    # cv2.imshow('MediaPipe Hands', image)
 
     if cv2.waitKey(5) & 0xFF == 27:
       break
